@@ -1,0 +1,127 @@
+//= require underscore
+//= require hammer
+//= require paper-full
+
+/* global Utility */
+/* global paper */
+/* global rgb2hex */
+/* global $ */
+/* global _ */
+
+ColoringInteraction.COLORING_PAGE = "/coloringpages/cow.svg";
+   
+function ColoringInteraction(options){
+        var scope = this
+        Utility.paperSetup("paperCanvas");
+        // SETUP COLOR PALETTE
+        window.cp = new ColorPalette({
+            container: $("#color-palette")
+        })
+        
+        // IMPORT COLORING PAGE
+        paper.project.importSVG(ColoringInteraction.COLORING_PAGE, function(svg){
+            svg.position = paper.view.center
+            
+            // COMMENT OUT ONE OF THESE TO TOGGLE BETWEEN INTERACTIONS
+            scope.myGradientInteraction()
+            // scope.myCustomInteraction()
+        })
+}
+
+ColoringInteraction.prototype = {           
+    myGradientInteraction: function(){   
+        var hitOptions = {
+            segments: false,
+            stroke: false,
+            fill: true,
+            tolerance: 5
+        };
+        
+        // IMPLEMENT GRADIENT COLOR HERE
+        var t = new paper.Tool()
+        t.minDistance = 10
+        t.onMouseDown =  function(event){
+            var hitResult = paper.project.hitTest(event.point, hitOptions)
+            if(!hitResult){ return;}
+            
+            _.each(hitResult, function(hit){
+                // DON'T COLOR THE BLACK LINES
+                if(hit.fillColor && hit.fillColor.equals("black")){ return;}
+                hit.fillColor = window.cp.currentColor()
+            })
+        }
+        t.onMouseDrag =  function(event){
+            // MOUSE DRAG ACTION
+        }
+        t.onMouseUp =  function(event){
+            // MOUSE UP ACTION
+        }
+    },
+    myCustomInteraction: function(){
+        var hitOptions = {
+            segments: false,
+            stroke: false,
+            fill: true,
+            tolerance: 5
+        };
+        
+        // YOUR INTERACTION HERE
+        var t = new paper.Tool()
+        t.minDistance = 10
+        t.onMouseDown =  function(event){
+            var hitResult = paper.project.hitTest(event.point, hitOptions)
+            if(!hitResult){ return;}
+            
+            _.each(hitResult, function(hit){
+                // DON'T COLOR THE BLACK LINES
+                if(hit.fillColor && hit.fillColor.equals("black")){ return;}
+                hit.fillColor = window.cp.currentColor()
+            })
+        }
+        t.onMouseDrag =  function(event){
+            // MOUSE DRAG ACTION
+        }
+        t.onMouseUp =  function(event){
+            // MOUSE UP ACTION
+        }
+    }
+}
+       
+    
+    
+// COLOR PALETTE OBJECT - NO NEED TO TOUCH
+ColorPalette.HUES = 32
+
+function ColorPalette(options){
+        _.extend(this, options);
+        this.history = [new paper.Color("yellow"), new paper.Color("blue")];
+        this.init();
+    }
+    
+ColorPalette.prototype = {
+    init: function(){
+        var scope = this;
+        var hues = _.range(0, 360, 360/ColorPalette.HUES);
+        hues = _.map(hues, function(hue){
+            var h = new paper.Color("red");
+            h.hue = hue;
+            return h;
+        })
+        hues = _.flatten([new paper.Color("white"), hues, new paper.Color("black")]);
+        _.each( hues, function(hue, i){
+            var swatch = $("<span>").addClass("swatch").css("background", hue.toCSS())
+                                .click(function(){
+                                    scope.history.push(new paper.Color(rgb2hex($(this).css('background'))));
+                                    $(this).addClass('active').siblings().removeClass('active');
+                                })
+            if(i == 0){$(this).addClass('active'); }
+            scope.container.append(swatch);
+        });
+    },
+    currentColor: function(){
+        return this.history[this.history.length - 1];
+    },
+    lastColor: function(){
+        return this.history[this.history.length - 2];
+    }
+}

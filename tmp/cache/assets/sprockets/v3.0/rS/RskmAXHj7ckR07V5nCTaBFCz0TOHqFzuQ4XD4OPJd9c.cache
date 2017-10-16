@@ -1,0 +1,35 @@
+I"¶(function() {
+  window.Utility = {};
+
+  window.Utility.paperSetup = function(id, op) {
+    var dom, myPaper;
+    dom = typeof id === 'string' ? $('#' + id) : id;
+    if (op && op.width) {
+      dom.parent().width(op.width + 1);
+    }
+    if (op && op.width) {
+      dom.width(op.width + 1);
+    }
+    if (op && op.height) {
+      dom.parent().height(op.height + 1);
+    }
+    if (op && op.height) {
+      dom.height(op.height);
+    }
+    paper.install(window);
+    myPaper = new paper.PaperScope;
+    myPaper.setup(dom[0]);
+    return myPaper;
+  };
+
+  window.rgb2hex = function(rgb) {
+    rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+    if (rgb && rgb.length === 4) {
+      return '#' + ('0' + parseInt(rgb[1], 10).toString(16)).slice(-2) + ('0' + parseInt(rgb[2], 10).toString(16)).slice(-2) + ('0' + parseInt(rgb[3], 10).toString(16)).slice(-2);
+    } else {
+      return '';
+    }
+  };
+
+}).call(this);
+:ET
